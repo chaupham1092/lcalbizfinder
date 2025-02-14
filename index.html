@@ -8,24 +8,24 @@
   <link rel="stylesheet" href="style.css">
 
   <!-- GTM Code (directly added in the head) -->
-<script>
-  (function(w, d, s, l, i) {
-    w[l] = w[l] || [];
-    w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-    var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != 'dataLayer' ? '&l=' + l : '';
-    j.async = true;
-    j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-    f.parentNode.insertBefore(j, f);
-  })(window, document, 'script', 'dataLayer', 'GTM-WQRFGVWK');
-</script>
+  <script>
+    (function(w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+      var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != 'dataLayer' ? '&l=' + l : '';
+      j.async = true;
+      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-WQRFGVWK');
+  </script>
 
-<!-- <noscript> tag for users without JavaScript -->
-<noscript>
-  <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WQRFGVWK" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-</noscript>
-  
+  <!-- Firebase and Stripe Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
   <div class="container">
@@ -43,6 +43,7 @@
       <label for="radius">Radius (meters): <span id="radiusValue">1000</span></label>
       <input type="range" id="radius" min="100" max="5000" value="1000" step="100">
       <button id="fetchBusinesses">Fetch Businesses</button>
+      <button id="paymentButton">Buy 100 Searches for $5</button>
     </div>
     <div id="loading" class="loading">
       <div class="spinner"></div>
