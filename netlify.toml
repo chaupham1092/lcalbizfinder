@@ -1,9 +1,12 @@
 [build]
-  command = "npm install && npm run build"
-  publish = "/opt/build/repo"
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "/*"
+  from = "/success"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cancel"
   to = "/index.html"
   status = 200
