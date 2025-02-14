@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Business Finder</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Local Business Finder</h1>
+    <div class="controls">
+      <label for="goToLocation">Go to Location:</label>
+      <input type="text" id="goToLocation" placeholder="e.g., Vietnam">
+      <button id="goToButton">Go</button>
+    </div>
+    <div id="map"></div>
+    <div class="controls">
+      <label for="query">Search for:</label>
+      <input type="text" id="query" placeholder="e.g., restaurants, plumbers" required>
+      <div id="autocompleteResults"></div>
+      <label for="radius">Radius (meters): <span id="radiusValue">1000</span></label>
+      <input type="range" id="radius" min="100" max="5000" value="1000" step="100">
+      <button id="fetchBusinesses">Fetch Businesses</button>
+    </div>
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+    <div id="businessList"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
