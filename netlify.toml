@@ -1,3 +1,9 @@
-# netlify.toml
 [build]
+  command = "npm install && npm run build"
+  publish = "/opt/build/repo"
   functions = "netlify/functions"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
