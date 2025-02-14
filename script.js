@@ -7,6 +7,21 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let markers = []; // Store all markers and circles
 let apiKey = null; // Store API key once fetched
 
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const stripe = Stripe(process.env.STRIPE_PUBLISHABLE_KEY);
+
 // Fetch API key using the same method as 1st code
 fetch("/.netlify/functions/get-api-key")
   .then(response => response.json())
@@ -114,6 +129,19 @@ autocompleteResults.addEventListener('click', (e) => {
 
 // Fetch businesses on button click
 document.getElementById('fetchBusinesses').addEventListener('click', async () => {
+  const user = auth.currentUser;
+  if (!user) {
+    alert('Please sign in to perform searches.');
+    return;
+  }
+
+  const userRef = db.collection('users').doc(user.uid);
+  const doc = await userRef.get();
+  if (!doc.exists || doc.data().searchesRemaining <= 0) {
+    alert('No searches remaining. Please purchase more searches.');
+    return;
+  }
+
   if (!apiKey) {
     alert('API key not loaded. Please refresh the page and try again.');
     return;
@@ -171,6 +199,9 @@ document.getElementById('fetchBusinesses').addEventListener('click', async () =>
     } else {
       businessList.innerHTML = '<p>No businesses found in the selected areas.</p>';
     }
+
+    // Decrement the search quota
+    await userRef.update({ searchesRemaining: doc.data().searchesRemaining - 1 });
   } catch (error) {
     console.error('Error fetching businesses:', error);
     loading.style.display = 'none';
@@ -178,46 +209,31 @@ document.getElementById('fetchBusinesses').addEventListener('click', async () =>
   }
 });
 
-// script.js
-import { loadStripe } from '@stripe/stripe-js';
-import { auth, db } from './firebase.js';
+// Handle payment button click
+document.getElementById('paymentButton').addEventListener('click', async () => {
+  const user = auth.currentUser;
+  if (!user) {
+    alert('Please sign in to make a payment.');
+    return;
+  }
 
-const stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY);
-
-// Buy Searches button
-document.getElementById('buySearches').addEventListener('click', async () => {
-  const stripe = await stripePromise;
-
-  // Create a Stripe Checkout session
-  const response = await fetch('/create-checkout-session', {
+  const response = await fetch('/.netlify/functions/create-checkout-session', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ userId: auth.currentUser.uid }),
   });
   const session = await response.json();
-
-  // Redirect to Stripe Checkout
-  const result = await stripe.redirectToCheckout({
-    sessionId: session.id,
-  });
-
+  const result = await stripe.redirectToCheckout({ sessionId: session.id });
   if (result.error) {
     alert(result.error.message);
   }
 });
 
-// script.js
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-
-const updateSearchCount = async (userId, count) => {
-  const userRef = doc(db, 'users', userId);
-  await updateDoc(userRef, { searchesRemaining: count });
-};
-
-const getSearchCount = async (userId) => {
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
-  return userSnap.exists() ? userSnap.data().searchesRemaining : 0;
-};
+// Track user authentication state
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    const userRef = db.collection('users').doc(user.uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      await userRef.set({ searchesRemaining: 100 });
+    }
+  }
+});
