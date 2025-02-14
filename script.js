@@ -7,21 +7,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let markers = []; // Store all markers and circles
 let apiKey = null; // Store API key once fetched
 
-// Function to fetch API key
-async function fetchApiKey() {
-  try {
-    const response = await fetch('/.netlify/functions/get-api-key');
-    if (!response.ok) throw new Error('Failed to load API key');
-    const data = await response.json();
-    apiKey = data.apiKey;
-  } catch (error) {
-    console.error('Error fetching API key:', error);
-    alert('Failed to retrieve API key. Please try again later.');
-  }
-}
-
-// Fetch API key on load
-fetchApiKey();
+// Fetch API key using the same method as 1st code
+fetch("/.netlify/functions/get-api-key")
+  .then(response => response.json())
+  .then(config => {
+    apiKey = config.API_KEY;
+  })
+  .catch(error => {
+    console.error("Error fetching API key:", error);
+    alert("Failed to retrieve API key. Please try again later.");
+  });
 
 // Change cursor to crosshair
 map.getContainer().style.cursor = 'crosshair';
