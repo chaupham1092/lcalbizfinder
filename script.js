@@ -177,3 +177,33 @@ document.getElementById('fetchBusinesses').addEventListener('click', async () =>
     alert('Failed to fetch businesses. Please try again.');
   }
 });
+
+// script.js
+import { loadStripe } from '@stripe/stripe-js';
+import { auth, db } from './firebase.js';
+
+const stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY);
+
+// Buy Searches button
+document.getElementById('buySearches').addEventListener('click', async () => {
+  const stripe = await stripePromise;
+
+  // Create a Stripe Checkout session
+  const response = await fetch('/create-checkout-session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userId: auth.currentUser.uid }),
+  });
+  const session = await response.json();
+
+  // Redirect to Stripe Checkout
+  const result = await stripe.redirectToCheckout({
+    sessionId: session.id,
+  });
+
+  if (result.error) {
+    alert(result.error.message);
+  }
+});
