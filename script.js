@@ -207,3 +207,17 @@ document.getElementById('buySearches').addEventListener('click', async () => {
     alert(result.error.message);
   }
 });
+
+// script.js
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
+const updateSearchCount = async (userId, count) => {
+  const userRef = doc(db, 'users', userId);
+  await updateDoc(userRef, { searchesRemaining: count });
+};
+
+const getSearchCount = async (userId) => {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  return userSnap.exists() ? userSnap.data().searchesRemaining : 0;
+};
